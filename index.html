@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disponibilidade e Reuniões — LIA UFSCar</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    /*
+      TEMA CLARO NATIVO ESTILO PLANE.SO
+      Sem gradientes chamativos, sem sombras pesadas, fundo branco limpo.
+    */
+    :root {
+      --bg-page: #FFFFFF;
+      --bg-subtle: #F9FAFB;
+      --bg-muted: #F3F4F6;
+      --bg-hover: #F3F4F6;
+
+      --border: #E5E7EB;
+      --border-subtle: #F3F4F6;
+      --border-strong: #D1D5DB;
+
+      --text-main: #111827;
+      --text-muted: #4B5563;
+      --text-faint: #9CA3AF;
+
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-subtle: #EFF6FF;
+      --primary-border: #BFDBFE;
+
+      --success-bg: #DCFCE7;
+      --success-text: #16A34A;
+
+      --danger-bg: #FEE2E2;
+      --danger-text: #B91C1C;
+
+      --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-system);
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 24px 32px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* HEADER NATIVO DO PLANE */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--bg-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .brand-icon img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .bc-org {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .bc-sep {
+      color: var(--text-faint);
+    }
+
+    .bc-title {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success-text);
+      box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+      transition: background 0.3s;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-main);
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-action:hover {
+      background: var(--bg-subtle);
+      border-color: var(--border-strong);
+    }
+
+    .btn-action.spinning svg {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* NAVEGAÇÃO POR ABAS ESTILO PLANE */
+    .tabs-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .nav-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-bottom: -1px;
+      transition: color 0.15s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-main);
+    }
+
+    .nav-tab.active {
+      color: var(--text-main);
+      font-weight: 600;
+      border-bottom-color: var(--text-main);
+    }
+
+    .nav-tab svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* ESTRUTURA DA ABA 1: FILTRAR POR MEMBROS */
+    .view-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 1000px) {
+      .view-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* BARRA LATERAL (CONTROLES E MEMBROS) */
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .search-box {
+      width: 100%;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 12px;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .search-box:focus {
+      border-color: var(--primary);
+      background: #FFFFFF;
+    }
+
+    .actions-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+
+    .action-link {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 0;
+    }
+
+    .action-link:hover {
+      text-decoration: underline;
+    }
+
+    .members-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .member-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .member-row:hover {
+      background: var(--bg-muted);
+    }
+
+    .member-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 450;
+      color: var(--text-main);
+      user-select: none;
+    }
+
+    .member-initial {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .checkbox {
+      width: 15px;
+      height: 15px;
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+      transition: all 0.15s;
+    }
+
+    .member-row.checked .checkbox {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .checkbox svg {
+      width: 10px;
+      height: 10px;
+      stroke: #FFFFFF;
+      stroke-width: 2.5;
+      fill: none;
+      display: none;
+    }
+
+    .member-row.checked .checkbox svg {
+      display: block;
+    }
+
+    .filter-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* MÉTRICAS DA ABA 1 */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .metric-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .metric-num {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 4px;
+    }
+
+    /* RANKING / MELHORES HORÁRIOS */
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 24px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .ranking-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .ranking-card.perfect {
+      border-color: var(--primary-border);
+      background: var(--primary-subtle);
+    }
+
+    .ranking-day {
+      font-weight: 600;
+      color: var(--text-main);
+      width: 110px;
+    }
+
+    .ranking-time {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      width: 90px;
+    }
+
+    .ranking-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--bg-muted);
+      color: var(--text-muted);
+    }
+
+    .ranking-badge.perfect {
+      background: #DBEAFE;
+      color: #1E40AF;
+    }
+
+    .ranking-members {
+      font-size: 11px;
+      color: var(--text-muted);
+      flex: 1;
+      text-align: right;
+      padding-left: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ÁREA DA GRADE SEMANAL */
+    .grid-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .grid-instructions {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .legend-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    .table-wrapper {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow-x: auto;
+      background: #FFFFFF;
+    }
+
+    table.grid {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    table.grid th, table.grid td {
+      border: 1px solid var(--border);
+      padding: 7px 4px;
+    }
+
+    table.grid th {
+      background: var(--bg-subtle);
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--text-muted);
+      height: 36px;
+    }
+
+    table.grid th.col-time {
+      width: 70px;
+      font-family: var(--font-mono);
+      color: var(--text-faint);
+      font-weight: 500;
+    }
+
+    td.cell-hour {
+      height: 36px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: default; /* apenas mouseover */
+      user-select: none;
+      transition: outline 0.1s;
+    }
+
+    td.cell-hour:hover {
+      outline: 2px solid var(--primary);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Tons claros de intensidade de calor */
+    .fill-none {
+      background: #FFFFFF;
+      color: var(--text-faint);
+    }
+
+    .fill-low {
+      background: #F3F4F6;
+      color: var(--text-muted);
+    }
+
+    .fill-mid {
+      background: #E0E7FF;
+      color: #3730A3;
+    }
+
+    .fill-high {
+      background: #C7D2FE;
+      color: #312E81;
+      font-weight: 600;
+    }
+
+    .fill-perfect {
+      background: #4F46E5;
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+
+    /* TOOLTIP NATIVO LIMPO ESTILO PLANE */
+    .tooltip {
+      position: fixed;
+      background: #111827;
+      color: #FFFFFF;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 11px;
+      line-height: 1.4;
+      pointer-events: none;
+      z-index: 1000;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      display: none;
+      max-width: 290px;
+    }
+
+    .tooltip-header {
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 4px;
+    }
+
+    .tooltip-quorum {
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #E5E7EB;
+    }
+
+    .tooltip-avail {
+      color: #86EFAC;
+      margin-bottom: 4px;
+    }
+
+    .tooltip-unavail {
+      color: #FCA5A5;
+    }
+
+    /* MODAL DE IMPORTAÇÃO */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #FFFFFF;
+      border-radius: 8px;
+      width: 440px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .drop-area {
+      border: 1px dashed var(--border-strong);
+      border-radius: 6px;
+      padding: 32px 16px;
+      text-align: center;
+      margin: 16px 0;
+      cursor: pointer;
+      background: var(--bg-subtle);
+    }
+
+    .drop-area:hover {
+      border-color: var(--primary);
+    }
+
+    /* GRUPOS E CABEÇALHOS DE PASTAS NA LISTA */
+    .dept-group {
+      margin-bottom: 12px;
+    }
+
+    .dept-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px 4px 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .dept-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dept-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dept-toggle-btn {
+      background: none;
+      border: 1px solid currentColor;
+      border-radius: 10px;
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 1px 6px;
+      cursor: pointer;
+      opacity: 0.85;
+      color: inherit;
+      transition: opacity 0.15s, background 0.15s;
+    }
+
+    .dept-toggle-btn:hover {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .member-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+    }
+
+    .member-name {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .member-pasta {
+      font-size: 10px;
+      font-weight: 500;
+      margin-top: 1px;
+    }
+
+    /* CARD FLUTUANTE DE DETALHES (BOTTOM SHEET PARA DISPOSITIVOS DE TOQUE) */
+    .cell-detail-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(2px);
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .cell-detail-modal.open {
+      display: flex;
+      animation: modalSlideUp 0.2s ease-out;
+    }
+
+    @keyframes modalSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .cell-detail-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 500px;
+      padding: 16px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .cell-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .cell-detail-time {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .cell-detail-quorum {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+
+    .btn-close-detail {
+      background: var(--bg-muted);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .btn-close-detail:hover {
+      background: var(--border);
+      color: var(--text-main);
+    }
+
+    .detail-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 5px;
+    }
+
+    .detail-section-title.avail-title { color: var(--success-text); }
+    .detail-section-title.unavail-title { color: var(--danger-text); }
+
+    .detail-tags-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .member-chip-tag {
+      font-size: 11.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .member-chip-tag.avail {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid rgba(22, 163, 74, 0.2);
+    }
+
+    .member-chip-tag.unavail {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+    }
+
+    td.cell-hour.active-touch-cell {
+      outline: 3px solid var(--primary) !important;
+      outline-offset: -2px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* ADAPTAÇÃO RESPONSIVA PARA MOBILE (TELAS <= 768px) */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px 10px 40px 10px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+      }
+
+      .header-left {
+        width: 100%;
+      }
+
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .live-status {
+        font-size: 10px;
+        margin-right: 0;
+        max-width: 100%;
+      }
+
+      .btn, .btn-refresh {
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+
+      .nav-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        margin-bottom: 14px;
+      }
+
+      .nav-tab {
+        justify-content: center;
+        padding: 9px 4px;
+        font-size: 12px;
+      }
+
+      .view-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .members-list {
+        max-height: 240px;
+      }
+
+      .metrics-bar {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .metric-card:nth-child(2) {
+        grid-column: span 2;
+      }
+
+      .metric-card {
+        padding: 10px 12px;
+      }
+
+      .metric-num {
+        font-size: 16px;
+      }
+
+      .ranking-list {
+        max-height: 200px;
+      }
+
+      .ranking-card {
+        padding: 8px 10px;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .ranking-day {
+        width: auto;
+        min-width: 75px;
+      }
+
+      .ranking-time {
+        width: auto;
+      }
+
+      .ranking-members {
+        width: 100%;
+        text-align: left;
+        padding-left: 0;
+        margin-top: 3px;
+      }
+
+      .table-wrapper {
+        border-radius: 6px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table.grid {
+        min-width: 560px;
+      }
+
+      table.grid th.col-time,
+      table.grid td.col-time {
+        position: sticky;
+        left: 0;
+        background: var(--bg-subtle);
+        z-index: 3;
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+      }
+
+      table.grid th.col-time {
+        z-index: 4;
+      }
+
+      table.grid th, table.grid td {
+        padding: 5px 2px;
+        font-size: 10.5px;
+        height: 32px;
+      }
+
+      td.cell-hour {
+        height: 32px;
+        font-size: 10.5px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header Nativo -->
+    <header>
+      <div class="header-left">
+        <div class="brand-icon">
+          <img src="data:image/png;base64,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" alt="LIA">
+        </div>
+        <div class="breadcrumb">
+          <span class="bc-org">LIA UFSCar</span>
+          <span class="bc-sep">/</span>
+          <span class="bc-title">Disponibilidade de Horários</span>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <div class="status-badge" id="liveStatusBadge">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Conectando ao Forms...</span>
+        </div>
+        <button class="btn-action" id="btnRefresh" title="Sincronizar respostas do Forms agora">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+          Sincronizar
+        </button>
+        <button class="btn-action" id="btnOpenModal" title="Importar arquivo alternativo">
+          Importar Arquivo
+        </button>
+      </div>
+    </header>
+
+    <!-- Barra de Abas Nativa do Plane -->
+    <div class="tabs-bar">
+      <button class="nav-tab active" id="tabMembers" data-target="viewMembers">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Filtrar por Membros
+      </button>
+      <button class="nav-tab" id="tabFullGrid" data-target="viewFullGrid">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        Grade Completa
+      </button>
+    </div>
+
+    <!-- ==================== ABA 1: FILTRAR POR MEMBROS ==================== -->
+    <div id="viewMembers" class="tab-view">
+      <div class="view-layout">
+        <!-- Sidebar: Seleção de Membros -->
+        <aside class="sidebar-section">
+          <div>
+            <div class="section-label">
+              <span>Membros da Liga</span>
+              <span id="selectedCountText" style="color:var(--text-faint); text-transform:none; font-weight:normal;">0 selecionados</span>
+            </div>
+
+            <input type="text" class="search-box" id="memberSearch" placeholder="Buscar por nome..." style="margin-bottom:8px;">
+
+            <div class="actions-row" style="margin-bottom:12px;">
+              <button class="action-link" id="btnSelectAll">Selecionar todos</button>
+              <button class="action-link" id="btnClearAll">Limpar seleção</button>
+            </div>
+
+            <div class="members-list" id="membersList">
+              <!-- Injetado via JS -->
+            </div>
+          </div>
+
+          <div class="filter-toggle-row">
+            <span>Apenas horários 100% livres</span>
+            <input type="checkbox" id="chkOnly100" style="cursor:pointer;">
+          </div>
+        </aside>
+
+        <!-- Área Principal de Resultados do Filtro de Membros -->
+        <main>
+          <!-- Métricas -->
+          <div class="metrics-bar">
+            <div class="metric-card">
+              <div class="metric-title">Membros Selecionados</div>
+              <div class="metric-num" id="metricSelectedCount">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-title">Melhor Janela Geral</div>
+              <div class="metric-num" id="metricBestSlot" style="font-size:14px; font-weight:500;">—</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-title">Horários 100% Compatíveis</div>
+              <div class="metric-num" id="metric100Count" style="color:var(--primary);">0</div>
+            </div>
+          </div>
+
+          <!-- Melhores Opções Encontradas (Ranking) -->
+          <div class="section-title-row">
+            <span class="section-title">Melhores Opções para os Membros Selecionados</span>
+            <span id="rankingCountText" style="font-size:11px; color:var(--text-faint);">0 horários</span>
+          </div>
+          <div class="ranking-list" id="rankingContainer">
+            <!-- Cards injetados via JS -->
+          </div>
+
+          <!-- Grade Semanal de Interseção dos Selecionados -->
+          <div class="section-title-row" style="margin-top:20px;">
+            <span class="section-title">Grade Semanal dos Membros Selecionados</span>
+            <span style="font-size:11px; color:var(--text-muted);">Passe o mouse sobre as células para ver detalhes</span>
+          </div>
+          <div class="table-wrapper">
+            <table class="grid" id="gridFilterTable">
+              <thead>
+                <tr id="headerFilterRow">
+                  <th class="col-time">Horário</th>
+                </tr>
+              </thead>
+              <tbody id="bodyFilterRows"></tbody>
+            </table>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- ==================== ABA 2: GRADE COMPLETA (VISÃO GERAL) ==================== -->
+    <div id="viewFullGrid" class="tab-view" style="display:none;">
+      <div class="grid-header-bar">
+        <div class="grid-instructions">
+          Visão panorâmica de toda a equipe. Passe o mouse sobre qualquer horário para ver a lista de membros livres e ocupados.
+        </div>
+        <div class="legend-bar">
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#FFFFFF;"></span>
+            <span>0%</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#F3F4F6;"></span>
+            <span>1–39%</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#E0E7FF;"></span>
+            <span>40–69%</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#C7D2FE;"></span>
+            <span>70–99%</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#4F46E5;"></span>
+            <span style="font-weight:600;">100% (Todos)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="grid" id="gridFullTable">
+          <thead>
+            <tr id="headerFullRow">
+              <th class="col-time">Horário</th>
+            </tr>
+          </thead>
+          <tbody id="bodyFullRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tooltip flutuante -->
+  <div class="tooltip" id="tooltip"></div>
+
+  <!-- Modal de Upload -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-weight:600; font-size:14px;">Importar Planilha</span>
+        <button class="action-link" id="btnCloseModal">Fechar</button>
+      </div>
+      <p style="font-size:12px; color:var(--text-muted);">
+        Carregue um arquivo .xlsx ou .csv com as disponibilidades dos membros.
+      </p>
+      <div class="drop-area" id="dropArea">
+        <p style="font-size:12px; color:var(--text-main); font-weight:500;">Clique para escolher o arquivo</p>
+        <input type="file" id="fileInput" accept=".xlsx, .csv" style="display:none;">
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALHES DA CÉLULA (AO TOCAR NO CELULAR OU CLICAR) -->
+  <div id="cellDetailModal" class="cell-detail-modal">
+    <div class="cell-detail-card">
+      <div class="cell-detail-header">
+        <div>
+          <div class="cell-detail-time" id="detailTime">Segunda, 14:00 – 15:00</div>
+          <div class="cell-detail-quorum" id="detailQuorum">8 de 13 membros disponíveis</div>
+        </div>
+        <button type="button" class="btn-close-detail" id="btnCloseDetail">✕</button>
+      </div>
+      <div class="cell-detail-body">
+        <div style="margin-bottom:8px;">
+          <div class="detail-section-title avail-title">Disponíveis (<span id="detailAvailCount">0</span>):</div>
+          <div class="detail-tags-wrap" id="detailAvailTags"></div>
+        </div>
+        <div>
+          <div class="detail-section-title unavail-title">Ocupados (<span id="detailUnavailCount">0</span>):</div>
+          <div class="detail-tags-wrap" id="detailUnavailTags"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Link direto do Google Sheets publicado em formato CSV
+    const LIVE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT4iX8AjxiuTNvRryYAUS5I7suXb3AGb9Is49I1bpujrlvBHGzkninEbz8h8xyObh4ZQjjGBzus7KIB/pub?output=csv';
+
+    // Base inicial de contingência caso não haja conexão à internet
+    const MEMBERS_DATA = [
+      {
+            "name": "Danilo Valois",
+            "schedules": {
+                  "Domingo": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Segunda": [
+                        "12:00 - 13:00, 13:00 - 14:00"
+                  ],
+                  "Terça": [
+                        "12:00 - 13:00, 13:00 - 14:00, 16:00 - 17:00, 17:00 - 18:00"
+                  ],
+                  "Quarta": [
+                        "10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Quinta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Sexta": [
+                        "14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Sábado": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ]
+            }
+      },
+      {
+            "name": "Enzo Aranha",
+            "schedules": {
+                  "Domingo": [],
+                  "Segunda": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Terça": [
+                        "18:00 - 19:00, 19:00 - 20:00"
+                  ],
+                  "Quarta": [
+                        "18:00 - 19:00, 19:00 - 20:00"
+                  ],
+                  "Quinta": [
+                        "14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00"
+                  ],
+                  "Sexta": [],
+                  "Sábado": []
+            }
+      },
+      {
+            "name": "Enzo Chizzolini",
+            "schedules": {
+                  "Domingo": [
+                        "13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Segunda": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Terça": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quarta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quinta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Sexta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Sábado": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ]
+            }
+      },
+      {
+            "name": "Felipe Lenzi",
+            "schedules": {
+                  "Domingo": [],
+                  "Segunda": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Terça": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Quarta": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Quinta": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Sexta": [],
+                  "Sábado": []
+            }
+      },
+      {
+            "name": "Felipe Marino",
+            "schedules": {
+                  "Domingo": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00"
+                  ],
+                  "Segunda": [
+                        "10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Terça": [
+                        "12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quarta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quinta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Sexta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Sábado": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ]
+            }
+      },
+      {
+            "name": "Heitor Giometti",
+            "schedules": {
+                  "Domingo": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Segunda": [
+                        "14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Terça": [
+                        "10:00 - 11:00, 11:00 - 12:00"
+                  ],
+                  "Quarta": [
+                        "14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00"
+                  ],
+                  "Quinta": [
+                        "8:00 - 9:00"
+                  ],
+                  "Sexta": [],
+                  "Sábado": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ]
+            }
+      },
+      {
+            "name": "João Paulo",
+            "schedules": {
+                  "Domingo": [],
+                  "Segunda": [
+                        "8:00 - 9:00, 9:00 - 10:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Terça": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00"
+                  ],
+                  "Quarta": [
+                        "20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Quinta": [
+                        "10:00 - 11:00, 11:00 - 12:00, 20:00 - 21:00"
+                  ],
+                  "Sexta": [
+                        "13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00"
+                  ],
+                  "Sábado": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 14:00 - 15:00, 15:00 - 16:00"
+                  ]
+            }
+      },
+      {
+            "name": "João Vitor Barberino",
+            "schedules": {
+                  "Domingo": [],
+                  "Segunda": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Terça": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quarta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quinta": [
+                        "10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00"
+                  ],
+                  "Sexta": [],
+                  "Sábado": []
+            }
+      },
+      {
+            "name": "José Luiz Jeronimo (Zé)",
+            "schedules": {
+                  "Domingo": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00"
+                  ],
+                  "Segunda": [
+                        "20:00 - 21:00"
+                  ],
+                  "Terça": [
+                        "18:00 - 19:00, 19:00 - 20:00"
+                  ],
+                  "Quarta": [
+                        "10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00"
+                  ],
+                  "Quinta": [],
+                  "Sexta": [
+                        "15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00"
+                  ],
+                  "Sábado": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00"
+                  ]
+            }
+      },
+      {
+            "name": "Leonardo Ramos",
+            "schedules": {
+                  "Domingo": [
+                        "9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00"
+                  ],
+                  "Segunda": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00"
+                  ],
+                  "Terça": [
+                        "9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00"
+                  ],
+                  "Quarta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00"
+                  ],
+                  "Quinta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00"
+                  ],
+                  "Sexta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00"
+                  ],
+                  "Sábado": [
+                        "9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00"
+                  ]
+            }
+      },
+      {
+            "name": "Pedro Freddi",
+            "schedules": {
+                  "Domingo": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00"
+                  ],
+                  "Segunda": [
+                        "8:00 - 9:00, 9:00 - 10:00, 12:00 - 13:00, 13:00 - 14:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Terça": [
+                        "17:00 - 18:00, 18:00 - 19:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quarta": [
+                        "10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quinta": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 17:00 - 18:00, 18:00 - 19:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Sexta": [],
+                  "Sábado": [
+                        "8:00 - 9:00, 9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ]
+            }
+      },
+      {
+            "name": "Vicente Cypel",
+            "schedules": {
+                  "Domingo": [
+                        "9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00"
+                  ],
+                  "Segunda": [],
+                  "Terça": [
+                        "19:00 - 20:00, 22:00 - 23:00"
+                  ],
+                  "Quarta": [
+                        "9:00 - 10:00, 10:00 - 11:00, 11:00 - 12:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Quinta": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00, 22:00 - 23:00"
+                  ],
+                  "Sexta": [],
+                  "Sábado": []
+            }
+      },
+      {
+            "name": "Vinícius",
+            "schedules": {
+                  "Domingo": [
+                        "10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00"
+                  ],
+                  "Segunda": [
+                        "14:00 - 15:00, 15:00 - 16:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Terça": [
+                        "12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Quarta": [
+                        "18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Quinta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Sexta": [
+                        "12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ],
+                  "Sábado": [
+                        "10:00 - 11:00, 11:00 - 12:00, 12:00 - 13:00, 13:00 - 14:00, 14:00 - 15:00, 15:00 - 16:00, 16:00 - 17:00, 17:00 - 18:00, 18:00 - 19:00, 19:00 - 20:00, 20:00 - 21:00, 21:00 - 22:00"
+                  ]
+            }
+      }
+];
+
+    // DEFINIÇÃO DAS PASTAS E SEUS RESPECTIVOS MEMBROS
+    const DEPARTMENTS = [
+      {
+        id: "operacoes",
+        name: "Operações",
+        color: "#2563EB",
+        lightBg: "#EFF6FF",
+        border: "#BFDBFE",
+        members: ["Vinícius", "João Paulo", "João Vitor Barberino", "Felipe Marino"]
+      },
+      {
+        id: "growth",
+        name: "Growth",
+        color: "#059669",
+        lightBg: "#ECFDF5",
+        border: "#A7F3D0",
+        members: ["Danilo Valois", "Enzo Aranha", "Vicente Cypel"]
+      },
+      {
+        id: "relacoes",
+        name: "Relações Institucionais",
+        color: "#D97706",
+        lightBg: "#FFFBEB",
+        border: "#FDE68A",
+        members: ["Pedro Freddi", "Enzo Chizzolini"]
+      },
+      {
+        id: "formacao",
+        name: "Formações e Cases",
+        color: "#7C3AED",
+        lightBg: "#F5F3FF",
+        border: "#DDD6FE",
+        members: ["Leonardo Ramos", "Felipe Lenzi", "Heitor Giometti"]
+      },
+      {
+        id: "geral",
+        name: "Geral",
+        color: "#6B7280",
+        lightBg: "#F3F4F6",
+        border: "#E5E7EB",
+        members: ["José Luiz Jeronimo (Zé)"]
+      }
+    ];
+
+    const DAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+
+    const state = {
+      currentTab: "viewMembers",
+      members: JSON.parse(JSON.stringify(MEMBERS_DATA)),
+      selectedMembers: new Set(),
+      searchFilter: "",
+      only100: false
+    };
+
+    function normStr(str) {
+      return (str || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    }
+
+    function parseInterval(rangeStr) {
+      if (!rangeStr || typeof rangeStr !== 'string' || !rangeStr.trim()) return [];
+      const parts = rangeStr.split(/[,;•\n\r]+/).map(s => s.trim()).filter(Boolean);
+      const intervals = [];
+      for (const part of parts) {
+        const clean = part.replace(/[–—]/g, '-').trim();
+        const [startStr, endStr] = clean.split('-').map(s => s.trim());
+        if (!startStr || !endStr) continue;
+        const startH = parseInt(startStr.split(':')[0], 10);
+        const endH = parseInt(endStr.split(':')[0], 10);
+        if (!isNaN(startH) && !isNaN(endH)) {
+          intervals.push({ start: startH, end: endH });
+        }
+      }
+      return intervals;
+    }
+
+    function isAvailable(member, day, hour) {
+      const slots = member.schedules[day] || [];
+      for (const s of slots) {
+        const intervals = parseInterval(s);
+        for (const inter of intervals) {
+          if (hour >= inter.start && hour < inter.end) return true;
+        }
+      }
+      return false;
+    }
+
+    function calculateSlot(day, hour, pool) {
+      const avail = [];
+      const unavail = [];
+      pool.forEach(m => {
+        if (isAvailable(m, day, hour)) avail.push(m.name);
+        else unavail.push(m.name);
+      });
+      return { avail, unavail, count: avail.length, total: pool.length };
+    }
+
+    /* RENDERIZAÇÃO DA SIDEBAR DE MEMBROS (ABA 1) - AGRUPADA POR PASTA (OPÇÃO A) */
+    function renderMembersList() {
+      const container = document.getElementById('membersList');
+      if (!container) return;
+      container.innerHTML = '';
+      const filter = state.searchFilter.toLowerCase().trim();
+
+      DEPARTMENTS.forEach(dept => {
+        const deptMembers = state.members.filter(m => {
+          const norm = normStr(m.name);
+          return dept.members.some(dm => normStr(dm) === norm);
+        });
+
+        const visibleMembers = deptMembers.filter(m => {
+          if (!filter) return true;
+          return m.name.toLowerCase().includes(filter) || dept.name.toLowerCase().includes(filter);
+        });
+
+        if (visibleMembers.length === 0) return;
+
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'dept-group';
+
+        let selectedInDept = 0;
+        deptMembers.forEach(m => {
+          if (state.selectedMembers.has(m.name)) selectedInDept++;
+        });
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'dept-header';
+        headerDiv.style.color = dept.color;
+        headerDiv.innerHTML = `
+          <div class="dept-title-wrap">
+            <span class="dept-dot" style="background:${dept.color};"></span>
+            <span>${dept.name}</span>
+          </div>
+          <button type="button" class="dept-toggle-btn" title="Alternar seleção desta pasta">
+            ${selectedInDept}/${deptMembers.length}
+          </button>
+        `;
+
+        const toggleBtn = headerDiv.querySelector('.dept-toggle-btn');
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const allDeptSelected = deptMembers.every(m => state.selectedMembers.has(m.name));
+            if (allDeptSelected) {
+              deptMembers.forEach(m => state.selectedMembers.delete(m.name));
+            } else {
+              deptMembers.forEach(m => state.selectedMembers.add(m.name));
+            }
+            updateViewMembers();
+          });
+        }
+
+        groupDiv.appendChild(headerDiv);
+
+        const listDiv = document.createElement('div');
+        listDiv.className = 'dept-members-list';
+
+        visibleMembers.forEach(m => {
+          const isChecked = state.selectedMembers.has(m.name);
+          const row = document.createElement('div');
+          row.className = `member-row ${isChecked ? 'checked' : ''}`;
+          row.innerHTML = `
+            <div class="member-label">
+              <div class="member-initial" style="background:${dept.lightBg}; color:${dept.color}; border-color:${dept.border};">
+                ${m.name.charAt(0).toUpperCase()}
+              </div>
+              <div class="member-info">
+                <span class="member-name">${m.name}</span>
+                <span class="member-pasta" style="color:${dept.color};">${dept.name}</span>
+              </div>
+            </div>
+            <div class="checkbox">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+          `;
+
+          row.addEventListener('click', () => {
+            if (state.selectedMembers.has(m.name)) state.selectedMembers.delete(m.name);
+            else state.selectedMembers.add(m.name);
+            updateViewMembers();
+          });
+
+          listDiv.appendChild(row);
+        });
+
+        groupDiv.appendChild(listDiv);
+        container.appendChild(groupDiv);
+      });
+
+      // Caso existam membros não atribuídos a nenhuma pasta
+      const unassigned = state.members.filter(m => {
+        const norm = normStr(m.name);
+        return !DEPARTMENTS.some(d => d.members.some(dm => normStr(dm) === norm));
+      }).filter(m => !filter || m.name.toLowerCase().includes(filter));
+
+      if (unassigned.length > 0) {
+        const unassignedGroup = document.createElement('div');
+        unassignedGroup.className = 'dept-group';
+        unassignedGroup.innerHTML = `
+          <div class="dept-header" style="color:#6B7280;">
+            <div class="dept-title-wrap">
+              <span class="dept-dot" style="background:#6B7280;"></span>
+              <span>Outros</span>
+            </div>
+          </div>
+        `;
+        const listDiv = document.createElement('div');
+        unassigned.forEach(m => {
+          const isChecked = state.selectedMembers.has(m.name);
+          const row = document.createElement('div');
+          row.className = `member-row ${isChecked ? 'checked' : ''}`;
+          row.innerHTML = `
+            <div class="member-label">
+              <div class="member-initial" style="background:#F3F4F6; color:#6B7280;">
+                ${m.name.charAt(0).toUpperCase()}
+              </div>
+              <div class="member-info">
+                <span class="member-name">${m.name}</span>
+                <span class="member-pasta" style="color:#6B7280;">Sem pasta</span>
+              </div>
+            </div>
+            <div class="checkbox">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+          `;
+          row.addEventListener('click', () => {
+            if (state.selectedMembers.has(m.name)) state.selectedMembers.delete(m.name);
+            else state.selectedMembers.add(m.name);
+            updateViewMembers();
+          });
+          listDiv.appendChild(row);
+        });
+        unassignedGroup.appendChild(listDiv);
+        container.appendChild(unassignedGroup);
+      }
+
+      const countEl = document.getElementById('selectedCountText');
+      if (countEl) countEl.textContent = `${state.selectedMembers.size} de ${state.members.length} selecionados`;
+    }
+
+    /* ATUALIZA ABA 1: FILTRAR POR MEMBROS */
+    function updateViewMembers() {
+      renderMembersList();
+
+      const pool = state.members.filter(m => state.selectedMembers.has(m.name));
+      const totalSel = pool.length;
+
+      document.getElementById('metricSelectedCount').textContent = totalSel;
+
+      let perfectCount = 0;
+      let bestSlot = null;
+      let maxRatio = -1;
+      const slotResults = [];
+
+      if (totalSel > 0) {
+        DAYS.forEach(day => {
+          for (let h = 8; h < 23; h++) {
+            const res = calculateSlot(day, h, pool);
+            if (res.count === totalSel) perfectCount++;
+
+            const ratio = res.count / totalSel;
+            if (ratio > maxRatio) {
+              maxRatio = ratio;
+              bestSlot = `${day} às ${String(h).padStart(2, '0')}:00 (${res.count}/${totalSel})`;
+            }
+
+            if (res.count > 0) {
+              slotResults.push({ day, hour: h, ...res, ratio });
+            }
+          }
+        });
+      }
+
+      document.getElementById('metric100Count').textContent = perfectCount;
+      document.getElementById('metricBestSlot').textContent = bestSlot || '—';
+
+      // Renderizar Ranking
+      renderRanking(slotResults, totalSel);
+
+      // Renderizar Grade Semanal dos Selecionados
+      renderGridGeneric('headerFilterRow', 'bodyFilterRows', pool);
+    }
+
+    /* RENDERIZAÇÃO DO RANKING (ABA 1) */
+    function renderRanking(slotResults, totalSel) {
+      const container = document.getElementById('rankingContainer');
+      container.innerHTML = '';
+
+      if (totalSel === 0) {
+        container.innerHTML = '<div style="color:var(--text-faint); padding:12px 0;">Selecione um ou mais membros ao lado para ver os horários compatíveis.</div>';
+        document.getElementById('rankingCountText').textContent = '0 opções';
+        return;
+      }
+
+      let filtered = slotResults;
+      if (state.only100) {
+        filtered = filtered.filter(s => s.count === totalSel);
+      }
+
+      filtered.sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        if (DAYS.indexOf(a.day) !== DAYS.indexOf(b.day)) return DAYS.indexOf(a.day) - DAYS.indexOf(b.day);
+        return a.hour - b.hour;
+      });
+
+      const topOptions = filtered.slice(0, 15);
+      document.getElementById('rankingCountText').textContent = `${topOptions.length} opções exibidas`;
+
+      if (topOptions.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-faint); padding:12px 0;">Nenhum horário atende aos critérios atuais.</div>';
+        return;
+      }
+
+      topOptions.forEach(opt => {
+        const isPerf = opt.count === totalSel;
+        const card = document.createElement('div');
+        card.className = `ranking-card ${isPerf ? 'perfect' : ''}`;
+        card.innerHTML = `
+          <span class="ranking-day">${opt.day}</span>
+          <span class="ranking-time">${String(opt.hour).padStart(2, '0')}:00–${String(opt.hour + 1).padStart(2, '0')}:00</span>
+          <span class="ranking-badge ${isPerf ? 'perfect' : ''}">${opt.count} / ${totalSel} livres (${Math.round(opt.ratio * 100)}%)</span>
+          <span class="ranking-members" title="Presentes: ${opt.avail.join(', ')}">
+            ${isPerf ? 'Todos os selecionados livres' : opt.avail.join(', ')}
+          </span>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /* ATUALIZA ABA 2: GRADE COMPLETA (VISÃO GERAL) */
+    function updateViewFullGrid() {
+      // Analisa todos os membros cadastrados na equipe
+      renderGridGeneric('headerFullRow', 'bodyFullRows', state.members);
+    }
+
+    /* FUNÇÃO GENÉRICA DE GRADE (USADA NAS DUAS ABAS) */
+    function renderGridGeneric(theadId, tbodyId, pool) {
+      const thead = document.getElementById(theadId);
+      const tbody = document.getElementById(tbodyId);
+      thead.innerHTML = '<th class="col-time">Horário</th>';
+      tbody.innerHTML = '';
+
+      DAYS.forEach(d => {
+        const th = document.createElement('th');
+        th.textContent = d;
+        thead.appendChild(th);
+      });
+
+      for (let h = 8; h < 23; h++) {
+        const tr = document.createElement('tr');
+        const tdTime = document.createElement('td');
+        tdTime.className = 'col-time';
+        tdTime.textContent = `${String(h).padStart(2, '0')}:00`;
+        tr.appendChild(tdTime);
+
+        DAYS.forEach(day => {
+          const td = document.createElement('td');
+          td.className = 'cell-hour';
+
+          if (pool.length === 0) {
+            td.className += ' fill-none';
+            td.textContent = '—';
+          } else {
+            const res = calculateSlot(day, h, pool);
+            td.textContent = `${res.count}/${res.total}`;
+
+            if (res.count === res.total) td.classList.add('fill-perfect');
+            else if (res.count >= res.total * 0.7) td.classList.add('fill-high');
+            else if (res.count >= res.total * 0.4) td.classList.add('fill-mid');
+            else if (res.count > 0) td.classList.add('fill-low');
+            else td.classList.add('fill-none');
+
+            td.addEventListener('mouseenter', (e) => showTooltip(e, day, h, res));
+            td.addEventListener('mousemove', (e) => moveTooltip(e));
+            td.addEventListener('mouseleave', () => hideTooltip());
+            td.addEventListener('click', (e) => {
+              // No celular ou se clicar diretamente, abre os detalhes da célula
+              if (window.innerWidth <= 768 || ('ontouchstart' in window)) {
+                e.stopPropagation();
+                selectCellDetail(day, h, res, td);
+              }
+            });
+          }
+
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      }
+    }
+
+    /* TOOLTIP NATIVO */
+    const tooltip = document.getElementById('tooltip');
+    function showTooltip(e, day, hour, data) {
+      if (!data || data.total === 0) return;
+      const pct = Math.round((data.count / data.total) * 100);
+      let html = `
+        <div class="tooltip-header">
+          ${day}, ${String(hour).padStart(2, '0')}:00 – ${String(hour + 1).padStart(2, '0')}:00
+        </div>
+        <div class="tooltip-quorum">
+          ${data.count} de ${data.total} membros disponíveis (${pct}%)
+        </div>
+      `;
+      if (data.avail.length) {
+        html += `<div class="tooltip-avail"><strong>Disponíveis (${data.avail.length}):</strong> ${data.avail.join(', ')}</div>`;
+      }
+      if (data.unavail.length) {
+        html += `<div class="tooltip-unavail"><strong>Ocupados (${data.unavail.length}):</strong> ${data.unavail.join(', ')}</div>`;
+      }
+      tooltip.innerHTML = html;
+      tooltip.style.display = 'block';
+      moveTooltip(e);
+    }
+
+    function moveTooltip(e) {
+      const pad = 14;
+      let x = e.clientX + pad;
+      let y = e.clientY + pad;
+      const rect = tooltip.getBoundingClientRect();
+      if (x + rect.width > window.innerWidth - 10) {
+        x = e.clientX - rect.width - pad;
+      }
+      if (y + rect.height > window.innerHeight - 10) {
+        y = e.clientY - rect.height - pad;
+      }
+      tooltip.style.left = `${Math.max(10, x)}px`;
+      tooltip.style.top = `${Math.max(10, y)}px`;
+    }
+
+    function hideTooltip() {
+      tooltip.style.display = 'none';
+    }
+
+    /* TROCA DE ABAS */
+    function setTab(tabId) {
+      state.currentTab = tabId;
+      document.getElementById('tabMembers').classList.toggle('active', tabId === 'viewMembers');
+      document.getElementById('tabFullGrid').classList.toggle('active', tabId === 'viewFullGrid');
+      document.getElementById('viewMembers').style.display = tabId === 'viewMembers' ? 'block' : 'none';
+      document.getElementById('viewFullGrid').style.display = tabId === 'viewFullGrid' ? 'block' : 'none';
+      hideTooltip();
+
+      if (tabId === 'viewMembers') updateViewMembers();
+      else updateViewFullGrid();
+    }
+
+    document.getElementById('tabMembers').addEventListener('click', () => setTab('viewMembers'));
+    document.getElementById('tabFullGrid').addEventListener('click', () => setTab('viewFullGrid'));
+
+    /* EVENTOS DA ABA 1 */
+    document.getElementById('memberSearch').addEventListener('input', (e) => {
+      state.searchFilter = e.target.value;
+      renderMembersList();
+    });
+
+    document.getElementById('btnSelectAll').addEventListener('click', () => {
+      state.members.forEach(m => state.selectedMembers.add(m.name));
+      updateViewMembers();
+    });
+
+    document.getElementById('btnClearAll').addEventListener('click', () => {
+      state.selectedMembers.clear();
+      updateViewMembers();
+    });
+
+    document.getElementById('chkOnly100').addEventListener('change', (e) => {
+      state.only100 = e.target.checked;
+      updateViewMembers();
+    });
+
+    /* SINCRONIZAÇÃO AO VIVO COM O GOOGLE FORMS VIA CSV */
+    async function fetchLiveResponses() {
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const refreshBtn = document.getElementById('btnRefresh');
+
+      if (refreshBtn) refreshBtn.classList.add('spinning');
+      if (statusText) statusText.textContent = 'Sincronizando com o Forms...';
+
+      const timestampParam = Date.now();
+      const urlsToTry = [
+        `${LIVE_CSV_URL}&_nocache=${timestampParam}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(LIVE_CSV_URL + '&_nocache=' + timestampParam)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(LIVE_CSV_URL + '&_nocache=' + timestampParam)}`
+      ];
+
+      let csvText = null;
+      for (const url of urlsToTry) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) {
+            const txt = await res.text();
+            if (txt && /nome|carimbo|segunda/i.test(txt)) {
+              csvText = txt;
+              break;
+            }
+          }
+        } catch (e) {
+          // Tenta próximo endpoint
+        }
+      }
+
+      if (csvText) {
+        try {
+          const wb = XLSX.read(csvText, { type: 'string' });
+          parseSheet(wb);
+
+          if (statusDot) statusDot.style.background = 'var(--success-text)';
+          if (statusText) {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            statusText.textContent = `Ao vivo do Forms (${state.members.length} membros) • ${timeStr}`;
+          }
+        } catch (err) {
+          console.warn('Erro ao processar dados baixados:', err);
+          if (statusDot) statusDot.style.background = '#F59E0B';
+          if (statusText) statusText.textContent = `Dados locais (${state.members.length} membros)`;
+        }
+      } else {
+        console.warn('Não foi possível obter CSV ao vivo. Usando dados locais.');
+        if (statusDot) statusDot.style.background = '#F59E0B';
+        if (statusText) statusText.textContent = `Dados locais (${state.members.length} membros)`;
+      }
+
+      if (refreshBtn) refreshBtn.classList.remove('spinning');
+    }
+
+    document.getElementById('btnRefresh').addEventListener('click', fetchLiveResponses);
+
+    /* MODAL DE IMPORTAÇÃO */
+    const modal = document.getElementById('modal');
+    document.getElementById('btnOpenModal').addEventListener('click', () => modal.classList.add('open'));
+    document.getElementById('btnCloseModal').addEventListener('click', () => modal.classList.remove('open'));
+
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+
+    dropArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    function handleFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          parseSheet(workbook);
+          modal.classList.remove('open');
+          document.getElementById('statusText').textContent = `Importado manualmente (${state.members.length} membros)`;
+        } catch (err) {
+          alert('Erro ao processar planilha.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function parseTimestamp(raw) {
+      if (!raw) return 0;
+      if (raw instanceof Date) return raw.getTime();
+      const s = String(raw).trim();
+      const parts = s.split(' ');
+      if (parts.length >= 1 && parts[0].includes('/')) {
+        const [d, m, y] = parts[0].split('/').map(Number);
+        const [hh, mm, ss] = (parts[1] || '00:00:00').split(':').map(Number);
+        if (!isNaN(d) && !isNaN(m) && !isNaN(y)) {
+          return new Date(y, m - 1, d, hh || 0, mm || 0, ss || 0).getTime();
+        }
+      }
+      const parsed = Date.parse(s);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+
+    // Mapeamento de apelidos e variações comuns para nomes canônicos
+    const ALIAS_MAP = {
+      'leo': 'Leonardo Ramos',
+      'leonardo': 'Leonardo Ramos',
+      'leonardo ramos': 'Leonardo Ramos',
+      'freddi': 'Pedro Freddi',
+      'pedro freddi': 'Pedro Freddi',
+      'barberino': 'João Vitor Barberino',
+      'joao vitor': 'João Vitor Barberino',
+      'joao barberino': 'João Vitor Barberino',
+      'joao vitor barberino': 'João Vitor Barberino',
+      'heitor': 'Heitor Giometti',
+      'heitor giometti': 'Heitor Giometti',
+      'lenzi': 'Felipe Lenzi',
+      'felipe lenzi': 'Felipe Lenzi',
+      'felipe': 'Felipe Lenzi',
+      'marino': 'Felipe Marino',
+      'felipe marino': 'Felipe Marino',
+      'felipe h marino': 'Felipe Marino',
+      'vini': 'Vinícius',
+      'vinicius': 'Vinícius',
+      'vinicius fialho': 'Vinícius',
+      'danilo': 'Danilo Valois',
+      'danilo valois': 'Danilo Valois',
+      'danilo magalhaes valois': 'Danilo Valois',
+      'danilo magalhaes': 'Danilo Valois',
+      'vicente': 'Vicente Cypel',
+      'vicente cypel': 'Vicente Cypel',
+      'enzo chizzolini': 'Enzo Chizzolini',
+      'chizzolini': 'Enzo Chizzolini',
+      'enzo aranha': 'Enzo Aranha',
+      'aranha': 'Enzo Aranha',
+      'enzo gasparetto aranha': 'Enzo Aranha',
+      'joao paulo': 'João Paulo',
+      'joao paulo ferreira': 'João Paulo',
+      'joao paulo de oliveira ferreira': 'João Paulo',
+      'ze': 'José Luiz Jeronimo (Zé)',
+      'jose': 'José Luiz Jeronimo (Zé)',
+      'jose luiz': 'José Luiz Jeronimo (Zé)',
+      'jose luiz jeronimo': 'José Luiz Jeronimo (Zé)'
+    };
+
+    function resolveCanonicalName(rawName) {
+      const clean = (rawName || '').toString().trim();
+      const norm = normStr(clean);
+      if (ALIAS_MAP[norm]) return ALIAS_MAP[norm];
+      return clean.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+    }
+
+    function parseSheet(wb) {
+      let sheetName = wb.SheetNames.find(n => /horários|individual|respostas/i.test(n)) || wb.SheetNames[0];
+      const json = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1 });
+      if (json.length < 2) return;
+
+      const headers = json[0].map(h => (h || '').toString().trim());
+      const personCol = headers.findIndex(h => /pessoa|nome|membro/i.test(normStr(h)));
+      if (personCol === -1) return;
+
+      const timeCol = headers.findIndex(h => /carimbo|timestamp|hora|data/i.test(normStr(h)));
+
+      const dayMap = {};
+      DAYS.forEach(day => {
+        const nd = normStr(day);
+        const idx = headers.findIndex(h => normStr(h).includes(nd));
+        if (idx !== -1) dayMap[day] = idx;
+      });
+
+      // Deduplicação inteligente: a resposta mais recente do membro substitui respostas anteriores
+      const memberMap = new Map();
+      let replacedCount = 0;
+
+      for (let r = 1; r < json.length; r++) {
+        const row = json[r];
+        const rawName = (row[personCol] || '').toString().trim();
+        if (!rawName) continue;
+
+        const canonicalName = resolveCanonicalName(rawName);
+        const key = normStr(canonicalName);
+
+        const rawTime = timeCol !== -1 ? row[timeCol] : null;
+        const rowTime = parseTimestamp(rawTime) || r;
+
+        const sched = {};
+        DAYS.forEach(day => {
+          const cIdx = dayMap[day];
+          const val = (cIdx !== undefined && row[cIdx]) ? row[cIdx].toString().trim() : '';
+          sched[day] = val ? [val] : [];
+        });
+
+        if (memberMap.has(key)) {
+          const existing = memberMap.get(key);
+          if (rowTime >= existing.timestamp) {
+            console.log(`[Deduplicação Forms] "${canonicalName}": resposta mais recente (${rawTime || 'linha ' + r}) substituiu a anterior.`);
+            replacedCount++;
+            memberMap.set(key, {
+              name: canonicalName,
+              schedules: sched,
+              timestamp: rowTime,
+              timeStr: rawTime
+            });
+          }
+        } else {
+          memberMap.set(key, {
+            name: canonicalName,
+            schedules: sched,
+            timestamp: rowTime,
+            timeStr: rawTime
+          });
+        }
+      }
+
+      const newMembers = Array.from(memberMap.values()).map(item => ({
+        name: item.name,
+        schedules: item.schedules
+      }));
+
+      if (newMembers.length) {
+        state.members = newMembers;
+        state.selectedMembers.clear();
+        state.members.forEach(m => state.selectedMembers.add(m.name));
+        updateViewMembers();
+        updateViewFullGrid();
+      }
+    }
+
+
+    /* DETALHES DE TOQUE / CLIQUE NA CÉLULA (PARA CELULAR) */
+    function selectCellDetail(day, hour, data, tdEl) {
+      if (!data || data.total === 0) return;
+
+      document.querySelectorAll('td.cell-hour.active-touch-cell').forEach(el => el.classList.remove('active-touch-cell'));
+      if (tdEl) tdEl.classList.add('active-touch-cell');
+
+      const modal = document.getElementById('cellDetailModal');
+      if (!modal) return;
+      const pct = Math.round((data.count / data.total) * 100);
+
+      const timeEl = document.getElementById('detailTime');
+      if (timeEl) timeEl.textContent = `${day}, ${String(hour).padStart(2, '0')}:00 – ${String(hour + 1).padStart(2, '0')}:00`;
+
+      const quorumEl = document.getElementById('detailQuorum');
+      if (quorumEl) quorumEl.textContent = `${data.count} de ${data.total} membros disponíveis (${pct}%)`;
+
+      const availWrap = document.getElementById('detailAvailTags');
+      const availCountEl = document.getElementById('detailAvailCount');
+      if (availCountEl) availCountEl.textContent = data.avail.length;
+      if (availWrap) {
+        availWrap.innerHTML = data.avail.length
+          ? data.avail.map(n => `<span class="member-chip-tag avail">${n}</span>`).join('')
+          : '<span style="font-size:11px; color:var(--text-faint); font-style:italic;">Nenhum membro</span>';
+      }
+
+      const unavailWrap = document.getElementById('detailUnavailTags');
+      const unavailCountEl = document.getElementById('detailUnavailCount');
+      if (unavailCountEl) unavailCountEl.textContent = data.unavail.length;
+      if (unavailWrap) {
+        unavailWrap.innerHTML = data.unavail.length
+          ? data.unavail.map(n => `<span class="member-chip-tag unavail">${n}</span>`).join('')
+          : '<span style="font-size:11px; color:var(--text-faint); font-style:italic;">Nenhum membro</span>';
+      }
+
+      modal.classList.add('open');
+    }
+
+    const btnCloseDetail = document.getElementById('btnCloseDetail');
+    if (btnCloseDetail) {
+      btnCloseDetail.addEventListener('click', () => {
+        const modal = document.getElementById('cellDetailModal');
+        if (modal) modal.classList.remove('open');
+        document.querySelectorAll('td.cell-hour.active-touch-cell').forEach(el => el.classList.remove('active-touch-cell'));
+      });
+    }
+
+    const cellDetailModal = document.getElementById('cellDetailModal');
+    if (cellDetailModal) {
+      cellDetailModal.addEventListener('click', (e) => {
+        if (e.target.id === 'cellDetailModal') {
+          cellDetailModal.classList.remove('open');
+          document.querySelectorAll('td.cell-hour.active-touch-cell').forEach(el => el.classList.remove('active-touch-cell'));
+        }
+      });
+    }
+
+    // INICIALIZAÇÃO
+
+    // 1. Marca todos da base local por padrão para exibição instantânea
+    state.members.forEach(m => state.selectedMembers.add(m.name));
+    updateViewMembers();
+    updateViewFullGrid();
+
+    // 2. Tenta sincronizar ao vivo com o Forms imediatamente ao abrir
+    fetchLiveResponses();
+
+    // 3. Auto-sincroniza a cada 60 segundos caso a página fique aberta
+    setInterval(fetchLiveResponses, 60000);
+  </script>
+</body>
+</html>
